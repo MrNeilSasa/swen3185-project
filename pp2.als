@@ -137,10 +137,12 @@ fact playerOnlyOneTeam{
 	/*If the version of the gamemode is SoloDuo then the match must have a rank*/
 	/*if the version of the gamemode is NormalDraft the match should not have a rank */ 
 fact SoloDuoHasRank{
-	all sr: SoloDuo, match: Match | one rank: Rank | match.gamemode = sr implies match.rank = rank
+	all sr: SoloDuo, match: Match | one rank: Rank | match.gamemode = sr implies rank->match = rank
+}
 
 fact draftNoRank{
 	all sr: NormalDraft, match: Match | match.gamemode = sr implies match.rank = none
+}
 
 /* 
 •	Players can only be matched with/against others of same Rank for Solo/Duo mode
