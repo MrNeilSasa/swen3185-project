@@ -126,14 +126,21 @@ sig Player {
 	/* A player can only be on one team */
 }
 
-fact PlayerOneRankProgress{
+fact playerOneRankProgress{
 	all p: Player | one rp:RankProgress| p.rankProgression = rp
 	}
 
-fact PlayerOneTeam{
+fact playerOnlyOneTeam{
 	all p: Player | one t:Team| p.team = t
 	}
 
+	/*If the version of the gamemode is SoloDuo then the match must have a rank*/
+	/*if the version of the gamemode is NormalDraft the match should not have a rank */ 
+fact SoloDuoHasRank{
+	all sr: SoloDuo, match: Match | one rank: Rank | match.gamemode = sr implies match.rank = rank
+
+fact draftNoRank{
+	all sr: NormalDraft, match: Match | match.gamemode = sr implies match.rank = none
 
 /* 
 •	Players can only be matched with/against others of same Rank for Solo/Duo mode
