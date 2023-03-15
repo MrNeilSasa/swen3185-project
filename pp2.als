@@ -30,8 +30,8 @@ sig Wins{}
 sig Losses{}
 sig PromotionZone extends RankProgress{
 	wins: Wins -> Player,
-	loses: Losses -> Player
-	/*Remember the constraints a player should not have more than 2 wins or loses in PromotionZone */
+	losses: Losses -> Player
+	
 }
 enum RankDivisions{Four, Three, Two, One}
 
@@ -109,7 +109,7 @@ sig BanPhase extends ChampSelect{
 }
 sig ChampionSelect extends ChampSelect{
 	selectedChampion: Player -> Champion
-	/*A player can only select one champion */
+	
 	/*There are no duplicate champions */
 	/*The player selecting the champion must match the champions role */
 }
@@ -117,7 +117,7 @@ sig Results extends Phase{}
 sig Player {
 	role: Role,
 	team: Team,
-	rank: lone Rank,
+	rank: one Rank, /* Every player must have a rank. */
 	rankProgression:  RankProgress,
 	phase: Phase
 	-- Lucas
@@ -127,7 +127,7 @@ sig Player {
 }
 /* 
 •	Players can only be matched with/against others of same Rank for Solo/Duo mode
-•	Every player must have a rank.
+
 •	Every player must have a Demotion Status
 •	Every player must have a Promotion Status
 •	Every player must have Rank Progress
@@ -176,15 +176,15 @@ fact oneRolePerPlayer {
         one r: Role | p.role = r
 }
 
-/*A player cannot select more than one gamemode 
+/*A player cannot select more than one gamemode   */
 fact oneGamemode{
-	all s: SummonersRift | eq[#(select2[gameSelected]).s, 1]
-} */
+	all disj g1, g2: GameSelection, p: Player | g1 -> p in select12[gameSelected] implies g2 -> p not in select12[gameSelected]
+}  
 
 /*Gamemode selected should be either NormalDraft or SummonersRift */
 fact gameModeType{
 	all  s: SummonersRift, g: GameSelection, p: Player | g -> p -> s in gameSelected implies s = NormalDraft or s = SoloDuo
-} 
+}  
 
 /*
 fact onePlayerPerRolePerTeam {
@@ -197,21 +197,29 @@ fact bannedChampionCannotBeSelected {
     all c: Champion, p: Player |
         p->c in select23[ban]  implies p->c not in select23[selectedChampion]
 }
-/*
+
+/*A player can only select one champion  */
 fact oneChampionPerPlayer {
     all p: Player |
-        #(p.selectedChampion) = 1
-}  */
+        eq[#(p.(select23[selectedChampion])),1]
+}  
+
+/* A player should not have more than 2 wins or losses in PromotionZone */
+fact winLossPromotionZone{
+	lt[#wins,3] and lt[#losses,3]
+}
 
 pred selectingGame[p:Player]{
 	some GameSelection
 	some Player
 	gt[#Player,1]
-	gt[#gameSelected, 1]
+	gt[#gameSelected, 2]
 	some SummonersRift
 	some NormalDraft
 	some SoloDuo
 
 }
 run selectingGame for 4 expect 1
+
+
 
