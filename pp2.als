@@ -125,6 +125,16 @@ sig Player {
 	/* A player can only have one rankProgress */
 	/* A player can only be on one team */
 }
+
+fact PlayerOneRankProgress{
+	all p: Player | one rp:RankProgress| p.rankProgression = rp
+	}
+
+fact PlayerOneTeam{
+	all p: Player | one t:Team| p.team = t
+	}
+
+
 /* 
 •	Players can only be matched with/against others of same Rank for Solo/Duo mode
 •	Every player must have a rank.
@@ -202,6 +212,9 @@ fact oneChampionPerPlayer {
     all p: Player |
         #(p.selectedChampion) = 1
 }  */
+
+
+
 
 pred selectingGame[p:Player]{
 	some GameSelection
